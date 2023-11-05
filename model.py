@@ -4,15 +4,14 @@ import numpy as np
 import torch.nn as nn
 
 
-# 原文：模型所有子层（包括embedding层）的输出大小均为d_model=512，整个模型输入和输出的长度也是d_model
-# 所以模型中大部分的数据流动，最后一维的长度都是512
+# 用来表示一个词的向量长度
 d_model = 512
 # FFN的隐藏层神经元个数
 d_ff = 2048
-# Q和K是要求等长的，V可以不同，依照原文我们都设为64
-# 原文：queries and kes of dimention d_k,所以q和k的长度都用d_k来表示
+# 分头后的q、k、v词向量长度，依照原文我们都设为64
+# 原文：queries and kes of dimention d_k,and values of dimension d_v .所以q和k的长度都用d_k来表示
 d_k = d_v = 64
-# Encoder和Decoder的层数
+# Encoder Layer 和 Decoder Layer的个数
 n_layers = 6
 # 多头注意力中head的个数，原文：we employ h = 8 parallel attention layers, or heads
 n_heads = 8
@@ -34,15 +33,14 @@ class PositionalEncoding(nn.Module):
         pe[:, 1::2] = torch.cos(div_term)
         # 一个句子要做一次pe，一个batch中会有多个句子，所以增加一维来用和输入的一个batch的数据相加时做广播
         pe = pe.unsqueeze(0) # [5000,512] -> [1,5000,512]
-        # 将pe作为固定参数保存到缓冲区
+        # 将pe作为固定参数保存到缓冲区，不会被更新
         self.register_buffer('pe', pe)
 
     def forward(self, x):
         ''' x: [batch_size, seq_len, d_model] '''
         # 5000是我们预定义的最大的seq_len，就是说我们把最多的情况pe都算好了，用的时候用多少就取多少
-        # 切片操作中缺省的：将选择整个维度的所有元素
         x = x + self.pe[:, :x.size(1), :] # 加的时候应该也广播了，第一维 1 -> batch_size
-        return self.dropout(x) # return: [batch_size, seq_len, d_model], 和输入x相同
+        return self.dropout(x) # return: [batch_size, seq_len, d_model], 和输入的形状相同
 
 
 
@@ -102,8 +100,8 @@ class ScaledDotProductionAttention(nn.Module):
         返回的context: [batch_size, n_heads, len_q, d_v]本质上还是batch_size个句子，
         只不过每个句子中词向量维度512被分成了8个部分，分别由8个头各自看一部分，每个头算的是整个句子(一列)的512/8=64个维度，最后按列拼接起来
         '''
-        return context
-        # context: [batch_size, n_heads, len_q, d_v]
+        return context # context: [batch_size, n_heads, len_q, d_v]
+
 
 
 class MultiHeadAttention(nn.Module):
@@ -217,10 +215,9 @@ class DecoderLayer(nn.Module):
         dec_outputs = self.dec_enc_attn(dec_outputs, enc_outputs, enc_outputs, dec_enc_attn_mask)
         dec_outputs = self.pos_ffn(dec_outputs)
 
-        return dec_outputs
-        # dec_outputs: [batch_size, tgt_len, d_model]
-        # dec_self_attn: [batch_size, n_heads, tgt_len, tgt_len]
-        # dec_enc_attn: [batch_size, h_heads, tgt_len, src_len]
+        return dec_outputs # dec_outputs: [batch_size, tgt_len, d_model]
+
+
 
 
 class Decoder(nn.Module):
