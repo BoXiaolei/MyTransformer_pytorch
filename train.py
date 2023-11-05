@@ -1,6 +1,5 @@
 from torch import optim
 
-from data import *
 from model import *
 
 
@@ -20,8 +19,6 @@ for epoch in range(1000):
         '''
         enc_inputs, dec_inputs, dec_outputs = enc_inputs.cuda(), dec_inputs.cuda(), dec_outputs.cuda()
         outputs = model(enc_inputs, dec_inputs) # outputs: [batch_size * tgt_len, tgt_vocab_size]
-        print(outputs.shape)
-        print(dec_outputs.view(-1).shape)
         # outputs: [batch_size * tgt_len, tgt_vocab_size], dec_outputs: [batch_size, tgt_len]
         loss = criterion(outputs, dec_outputs.view(-1))  # 将dec_outputs展平成一维张量
 
