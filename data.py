@@ -24,7 +24,7 @@ tgt_vocab_size = len(tgt_vocab) # 9
 src_len = 5 # 输入序列enc_input的最长序列长度，其实就是最长的那句话的token数，是指一个batch中最长呢还是所有输入数据最长呢
 tgt_len = 6 # 输出序列dec_inut/dec_output的最长序列长度
 
-# 这个函数把原始输入序列转换成token表示
+# 构建模型输入的Tensor
 def make_data(sentence):
     enc_inputs, dec_inputs, dec_outputs = [], [], []
     for i in range(len(sentence)):
