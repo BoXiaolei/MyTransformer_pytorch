@@ -32,7 +32,7 @@ def greedy_decoder(model, enc_input, start_symbol):
 
 
 # 测试
-model = torch.load('MyTransformer_concat.pth')
+model = torch.load('MyTransformer_temp.pth')
 model.eval()
 with torch.no_grad():
     # 手动从loader中取一个batch的数据
