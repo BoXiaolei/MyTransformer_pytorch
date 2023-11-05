@@ -9,6 +9,10 @@
 
 
 - file_list
+  - MyTransformer.ipynb
+    - jupyter notebook中的实现，与.py文件相比，添加了更多的说明文字
+  - images
+    - 为方便理解绘制的一些图，在 MyTransformer.ipynb 中被用到
   - data.py
     - 数据预处理
   - model.py
